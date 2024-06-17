@@ -40,10 +40,12 @@ class Repartidor():
         self.pais = value
 
 class Persona():
-        def __init__(self, direccion="", localidad="", pais=""):
+        def __init__(self, direccion="", localidad="", pais="", rut="", nombre= ""):
             self.direccion = direccion
             self.localidad = localidad
             self.pais = pais
+            self.rut = rut
+            self.nombre = nombre
             
         def set_direccion(self, value):
             self.direccion = value
@@ -58,6 +60,14 @@ class Persona():
         def set_pais(self, value):
             self.pais = value
             pass
+        def get_rut(self):
+            return self.rut
+        def set_rut(self, value):
+            self.rut = value
+        def get_pais(self):
+            return self.pais
+        def set_pais(self, value):
+            self.pais = value
 
 class Paquete():
     def __init__(self):
@@ -133,8 +143,8 @@ class Paquete():
 
     def __str__(self):
         return (f"Código {self.codigo}:\n"
-                f"Remitente: {self.remitente.direccion}\n"
-                f"Receptor: {self.receptor.direccion}\n"
+                f"Remitente: {self.remitente.rut}, {self.remitente.nombre}, {self.remitente.direccion}, {self.remitente.pais}, {self.remitente.localidad}\n"
+                f"Receptor: {self.receptor.rut}, {self.receptor.nombre}, {self.receptor.direccion}, {self.receptor.pais}, {self.receptor.localidad}\n"
                 f"Fecha de Envío: {self.fecha_envio}\n"
                 f"Fecha Entrega: {self.fecha_entrega}\n"
                 f"Peso del Paquete: {self.peso}kg\n"
@@ -145,6 +155,7 @@ class Paquete():
 
 
 while menu != "5":
+    entregado = ""
     print("******** Bienvenido a la aplicación de Envíos Instantáneos ********")
     print("1.- Ingrese un repartidor")
     print("2.- Ingrese un envío")
@@ -171,28 +182,39 @@ while menu != "5":
             paquete = Paquete()
             
             # Obtener datos del Paquete
-            estado_paquete = input("Ingrese el estado del Paquete: ")
+            estadopaqueteverificar = "no"
+            while estadopaqueteverificar != "si":
+                estado_paquete = input("Ingrese el estado del Paquete (En tránsito, no entregado, entregado): ").lower()
+                if estado_paquete == "en tránsito" or estado_paquete == "no entregado":
+                    estadopaqueteverificar = "si"
+                elif estado_paquete == "entregado":
+                    estadopaqueteverificar = "si"
+                    entregado = "si"
+                else:
+                    print("Ingrese un estado de paquete válido : ")
             envio_verificar = "no"
             while envio_verificar != "si":
                 fecha_envio_paquete = input("Ingrese la fecha de envío del Paquete (Año-Mes-Día): ")
-                if fecha_envio_paquete.isdigit() == False:
+                if fecha_envio_paquete.split("-") == False:
                     print("Ingrese fecha válida")
                 else:
-                    if len(fecha_envio_paquete) != 8:
+                    if len(fecha_envio_paquete) != 10:
                         print("Ingrese fecha válida")
                     else:
                         envio_verificar = "si"
 
             entrega_verificar = "no"
             while entrega_verificar != "si":
-                fecha_entrega_paquete = input("Ingrese la fecha de entrega del Paquete (Año-Mes-Día): ")
-                if fecha_entrega_paquete.isdigit() == False:
-                    print("Ingrese fecha válida")
-                else:
-                    if len(fecha_entrega_paquete) != 8:
+                if entregado == "si":
+                    fecha_entrega_paquete = input("Ingrese la fecha de entrega del Paquete (Año-Mes-Día): ")
+                    if fecha_entrega_paquete.split("-") == False:
                         print("Ingrese fecha válida")
+                    elif len(fecha_entrega_paquete) != 10:
+                            print("Ingrese fecha válida")
                     else:
                         entrega_verificar = "si"
+                else:
+                    fecha_entrega_paquete = "No entregado"
                     entrega_verificar = "si"
             paquete_verificar = "no"
             while paquete_verificar != "si":
@@ -210,17 +232,21 @@ while menu != "5":
             paquete.set_peso(peso_paquete)
             
             # Obtener datos del remitente
+            rut_remitente = input("Ingrese el rut del remitente: ")
+            nombre_remitente = input("Ingrese el nombre del remitente: ")
             direccion_remitente = input("Ingrese la dirección del remitente: ")
             localidad_remitente = input("Ingrese la localidad del remitente: ")
             pais_remitente = input("Ingrese el país del remitente: ")
-            remitente = Persona(direccion_remitente, localidad_remitente, pais_remitente)
+            remitente = Persona(direccion_remitente, localidad_remitente, pais_remitente, rut_remitente, nombre_remitente)
             paquete.set_remitente(remitente)
             
             # Obtener datos del receptor
+            rut_receptor = input("Ingrese el rut del receptor: ")
+            nombre_receptor = input("Ingrese el nombre del receptor: ")
             direccion_receptor = input("Ingrese la dirección del receptor: ")
             localidad_receptor = input("Ingrese la localidad del receptor: ")
             pais_receptor = input("Ingrese el país del receptor: ")
-            receptor = Persona(direccion_receptor, localidad_receptor, pais_receptor)
+            receptor = Persona(direccion_receptor, localidad_receptor, pais_receptor, rut_receptor, nombre_receptor)
             paquete.set_receptor(receptor)
             #Obtener nombre del despachador
             despachadorinput = input("Ingrese el Despachador: ")
@@ -230,12 +256,21 @@ while menu != "5":
             print("Seleccione un repartidor:")
             for iteraciones in range(len(repartidoreslista)):
                 print(f"{iteraciones + 1}. {repartidoreslista[iteraciones].get_nombre()}")
-            indice_repartidor = int(input("Ingrese el número del repartidor al que desee encargarle el pedido: ")) - 1
-            paquete.set_repartidor(repartidoreslista[indice_repartidor])
-
-            # Guardar el paquete
-            paqueteslista.append(paquete)
-            print(f"Paquete guardado correctamente con el código {paquete.codigo}")
+            repartidorverificar = "no"
+            while repartidorverificar != "si":
+                indice_repartidor = (input("Ingrese el número del repartidor al que desee encargarle el pedido: "))
+                if indice_repartidor.isdigit() == True:
+                    indice_repartidor = int(indice_repartidor) -1
+                    if 0 <= indice_repartidor < len(repartidoreslista):
+                        paquete.set_repartidor(repartidoreslista[indice_repartidor])
+                        paqueteslista.append(paquete)
+                        print(f"Paquete guardado correctamente con el código {paquete.codigo}")
+                        repartidorverificar = "si"
+                    else:
+                        print("Elija un repartidor por favor")
+                else:
+                    print("Elija un repartidor por favor")
+            
 
     elif menu == "3":
         if paqueteslista == []:
