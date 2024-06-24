@@ -1,7 +1,4 @@
 import uuid
-menu = ""
-repartidoreslista = []
-paqueteslista = []
 class Repartidor():
     def __init__(self, rut="", nombre="", direccion="", localidad="", pais=""):
         self.rut = rut
@@ -76,9 +73,9 @@ class Paquete():
         self.fecha_entrega = ""
         self.peso = 0
         self.despachador = ""
-        self.receptor = Persona("", "", "")
-        self.remitente = Persona("", "", "")
-        self.repartidor = Repartidor("", "", "")
+        self.receptor = Persona()
+        self.remitente = Persona()
+        self.repartidor = Repartidor()
         self.codigo = str(uuid.uuid4())
 
     def get_estado(self):
@@ -148,11 +145,13 @@ class Paquete():
                 f"Fecha de Envío: {self.fecha_envio}\n"
                 f"Fecha Entrega: {self.fecha_entrega}\n"
                 f"Peso del Paquete: {self.peso}kg\n"
-                f"Costo del Envío: {self.get_costo()}\n"
                 f"Estado del Envío: {self.estado}\n"
                 f"Encargado de Despacho: {self.despachador}\n"
                 f"Repartidor: {self.repartidor.nombre}")
 
+menu = ""
+repartidoreslista = []
+paqueteslista = []
 
 while menu != "5":
     entregado = ""
@@ -166,7 +165,13 @@ while menu != "5":
     menu = input("Seleccione una opción: ")
     if menu == "1":
         # Obtener datos del repartidor
-        rut_repartidor = input("Ingrese el RUT del repartidor: ")
+        rutrepartidorverif = "no"
+        while rutrepartidorverif != "si":
+            rut_repartidor = input("Ingrese el RUT del repartidor: ")
+            if rut_repartidor.split("-"):
+                rutrepartidorverif = "si"  
+            else:
+                print("Ingrese rut válido porfavor")
         nombre_repartidor = input("Ingrese el nombre del repartidor: ")
         direccion_repartidor = input("Ingrese la dirección del repartidor: ")
         pais_repartidor = input("Ingrese el país del repartidor: ")
@@ -178,14 +183,14 @@ while menu != "5":
         if repartidoreslista == []:
             print("No hay repartidores disponibles, por favor ingrese uno\n")
         else:
-            # Crear un nuevo paquete
+            # crear paquete
             paquete = Paquete()
             
-            # Obtener datos del Paquete
+            # obtener datos del Paquete
             estadopaqueteverificar = "no"
             while estadopaqueteverificar != "si":
-                estado_paquete = input("Ingrese el estado del Paquete (En tránsito, no entregado, entregado): ").lower()
-                if estado_paquete == "en tránsito" or estado_paquete == "no entregado":
+                estado_paquete = input("Ingrese el estado del Paquete (En tránsito, No entregado, Entregado, Sin registro): ").lower()
+                if estado_paquete == "en tránsito" or estado_paquete == "no entregado" or estado_paquete == "en transito" or estado_paquete == "sin registro":
                     estadopaqueteverificar = "si"
                 elif estado_paquete == "entregado":
                     estadopaqueteverificar = "si"
@@ -214,7 +219,7 @@ while menu != "5":
                     else:
                         entrega_verificar = "si"
                 else:
-                    fecha_entrega_paquete = "No entregado"
+                    fecha_entrega_paquete = "No entregado aún"
                     entrega_verificar = "si"
             paquete_verificar = "no"
             while paquete_verificar != "si":
@@ -222,8 +227,11 @@ while menu != "5":
                 if peso_paquete.isdigit() == False:
                     print("Ingrese un número válido")
                 else:
-                    peso_paquete = float(peso_paquete)
-                    paquete_verificar = "si"
+                    if float(peso_paquete)<0:
+                        print("Ingrese un número válido")
+                    else:
+                        peso_paquete = float(peso_paquete)
+                        paquete_verificar = "si"
 
                 
             paquete.set_estado(estado_paquete)
@@ -231,8 +239,14 @@ while menu != "5":
             paquete.set_fecha_entrega(fecha_entrega_paquete)
             paquete.set_peso(peso_paquete)
             
-            # Obtener datos del remitente
-            rut_remitente = input("Ingrese el rut del remitente: ")
+            # obtener datos del remitente
+            rutremitenteverif = "no"
+            while rutremitenteverif != "si":
+                rut_remitente = input("Ingrese el RUT del remitente: ")
+                if rut_remitente.split("-"):
+                    rutremitenteverif = "si"
+                else:
+                    print("Ingrese RUT válido porfavor")
             nombre_remitente = input("Ingrese el nombre del remitente: ")
             direccion_remitente = input("Ingrese la dirección del remitente: ")
             localidad_remitente = input("Ingrese la localidad del remitente: ")
@@ -240,18 +254,24 @@ while menu != "5":
             remitente = Persona(direccion_remitente, localidad_remitente, pais_remitente, rut_remitente, nombre_remitente)
             paquete.set_remitente(remitente)
             
-            # Obtener datos del receptor
-            rut_receptor = input("Ingrese el rut del receptor: ")
+            # obtener datos del receptor            
+            rutreceptorverif = "no"
+            while rutreceptorverif != "si":
+                rut_receptor = input("Ingrese el RUT del receptor: ")
+                if rut_receptor.split("-"):
+                    rutreceptorverif = "si"
+                else:
+                    print("Ingrese rut válido porfavor")
             nombre_receptor = input("Ingrese el nombre del receptor: ")
             direccion_receptor = input("Ingrese la dirección del receptor: ")
             localidad_receptor = input("Ingrese la localidad del receptor: ")
             pais_receptor = input("Ingrese el país del receptor: ")
             receptor = Persona(direccion_receptor, localidad_receptor, pais_receptor, rut_receptor, nombre_receptor)
             paquete.set_receptor(receptor)
-            #Obtener nombre del despachador
+            #obtener nombre del despachador
             despachadorinput = input("Ingrese el Despachador: ")
             paquete.set_despachador(despachadorinput)
-            # Seleccionar repartidor
+            # seleccionar repartidor
             print("Seleccione un repartidor a cargo del envío:")
             print("Seleccione un repartidor:")
             for iteraciones in range(len(repartidoreslista)):
@@ -274,26 +294,45 @@ while menu != "5":
 
     elif menu == "3":
         if paqueteslista == []:
-            print("No se encontró ningún paquete registrado\n")
+            print("No se encontró ningún envío registrado\n")
         else:
             codigo_paquete = input("Ingrese el código del envío que desea modificar: ")
             paquete = "no"
-            for iteraciones in paqueteslista:
-                if iteraciones.codigo == codigo_paquete:
-                    paquete = iteraciones
+            for codigos in paqueteslista:
+                if codigos.codigo == codigo_paquete:
+                    paquete = codigos
                     break
 
             if paquete != "no":
-                nuevo_estado = input(f"Estado actual ({paquete.get_estado()}), ingrese nuevo estado: ")
-                paquete.set_estado(nuevo_estado)
-                print("Estado del paquete actualizado correctamente")
+                if paquete.get_estado() == "entregado":
+                    nuevoenvio_verificar = "no"
+                    while nuevoenvio_verificar != "si":
+                        nuevo_estado = input(f"Estado actual ({paquete.get_estado()}), ingrese nuevo estado del envío: ").lower()
+                        if nuevo_estado == "en transito" or nuevo_estado == "no entregado" or nuevo_estado == "en tránsito":
+                            paquete.set_estado(nuevo_estado)
+                            nuevoenvio_verificar = "si"
+                        else:
+                            print("Ingrese nuevo estado válido")
+                    nuevafecha_verificar = "no"
+                    while nuevafecha_verificar != "si":
+                        nueva_fecha = input(f"Fecha actual ({paquete.get_fecha_entrega()}), ingrese una nueva fecha de entrega: ").lower()
+                        if nueva_fecha.split("-") == False:
+                            print("Ingrese fecha válida")
+                        elif len(fecha_envio_paquete) != 10:
+                            print("Ingrese fecha válida")
+                        else:
+                            paquete.set_fecha_entrega(nueva_fecha)
+                            print("Paquete actualizado correctamente")
+                            nuevafecha_verificar = "si"
+                else:
+                    print("El paquete no fué entregado aún")
             else:
                 print("Paquete no encontrado")
 
     elif menu == "4":
-        # Listar todos los envíos
+        # listar todos los envios
         if paqueteslista == []:
-           print("No se encontró ningún paquete registrado\n")
+           print("No se encontró ningún envío registrado\n")
         else:
             for paquetes in paqueteslista:
                 print(paquetes)
